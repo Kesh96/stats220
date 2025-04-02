@@ -1,0 +1,75 @@
+---
+title: My dynamic report
+output: html_fragment
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, error=FALSE)
+
+```
+
+```{css}
+
+body {
+    font-family: Poppins;
+    background-color: #f0f0D9;
+    color: #333;
+}
+
+h2 {
+    font-family: Roboto;
+    font-weight: bold;
+    color: #0055A4
+}
+```
+
+```{r setup_data, echo=FALSE} 
+library(tidyverse) # Loading the tidyverse library
+
+logged_data <- "https://docs.google.com/spreadsheets/d/e/2PACX-1vRj_FykWQXQDQKpfHbQ1JUJVkplicx5hZpc9LiMdasbcXWafHxtT8oNwaUURpcQGFrE1M83SJxbpKPm/pub?output=csv"
+
+latest_data <- read_csv(logged_data) %>% #Here we are renaming logged_data to latest_data
+  rename(timestamp = Timestamp, # Timestamp is the date and time of the particular response was taken.
+         category = `What category does the ad belong to?`, # Category helps us to sort out which category the ad is
+         views = `How many times have you seen an ad from this particular business, brand or service during the 5-minute observation period?`, # # The number of times the ad had appeared during the 5-minute observation period
+         sponsor = `Was this ad sponsored by a well-known brand or an independent seller?`, # Helps us to identify whether the ad was from a well-known brand or an independent seller
+         relevance = `How relevant is this ad to your interests?`) # Relevance helps us to figure out if that ad matches with the user's interests
+
+num_ads <- length(latest_data$views) # We are using the this variable to find the number of views of the ads
+
+min_views <- min(latest_data$views) # We are finding the minimum number of ads in the 5mins period
+
+max_views <- max(latest_data$views) # We are finding the maximum number of ads in the 5mins period
+
+mean_views <- mean(latest_data$views) %>% round(1) #We are using mean_views to calculate the mean number of the views and we are also rounding it to one decimal place.
+
+```
+
+
+## Insights from My Instagram Ads Data!
+
+The minimum number of views recorded for an Instagram ad during the 5-minute observation period was `r min_views`, while the maximum number of views was `r max_views`. 
+
+Additionally, the average number of views across all `r num_ads` Instagram ads logged during the 5-minute periods was `r mean_views`.
+
+
+```{r graph, echo=FALSE} 
+latest_data %>% # Here, we are creating a bar chart to show that the distribution of Instagram ads across different categories
+  ggplot() +
+  geom_bar(aes(x = category, fill = category)) + 
+  labs(title = "Instagram Ads by Category",
+       subtitle = "Comparing the distribution between the number of Instagram ads by the different categories",
+       caption = "Source: Survey Data",
+       x = "Ad Category",
+       y = "Number of Ads")
+
+latest_data %>% # Whereas, here we are creating a bar chart to show that the distribution of Instagram ads based on the sponsor types
+  ggplot() +
+  geom_bar(aes(x = sponsor, fill = sponsor)) + 
+  labs(title = "Instagram Ads by Sponsor Type",
+       subtitle = "Comparing the distribution of Instagram ads from well-known brands and independent sellers",
+       caption = "Source: Survey Data",
+       x = "Sponsor Type",
+       y = "Number of Ads")
+```
+
